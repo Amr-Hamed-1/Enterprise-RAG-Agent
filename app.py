@@ -1,7 +1,7 @@
 import os
 from dotenv import load_dotenv
 from langchain_community.document_loaders import PyPDFDirectoryLoader
-from langchain_text_splitters import RecursiveCharacterTextSplitter
+from langchain_experimental.text_splitter import SemanticChunker
 from langchain_huggingface import HuggingFaceEmbeddings
 from langchain_community.vectorstores import FAISS
 from langchain_groq import ChatGroq
@@ -25,8 +25,8 @@ print("2. Loading and Chunking PDF...")
 loader = PyPDFDirectoryLoader("data")
 docs = loader.load()
 
-# Define chunking configuration (1000 characters per chunk, with 100 characters overlap)
-text_splitter = RecursiveCharacterTextSplitter(chunk_size=1000, chunk_overlap=100)
+# Define semantic chunking configuration using embedding model
+text_splitter = SemanticChunker(embeddings, breakpoint_threshold_type="percentile")
 
 # Perform text chunking on the documents
 chunks = text_splitter.split_documents(docs)
