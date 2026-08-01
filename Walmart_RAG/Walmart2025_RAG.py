@@ -3,7 +3,16 @@ from langchain_core.documents import Document
 from typing import List
 from langchain_text_splitters import RecursiveCharacterTextSplitter
 from langchain_qdrant import QdrantVectorStore
+from qdrant_client import QdrantClient
+from langchain_huggingface import HuggingFaceEmbeddings
 from dotenv import load_dotenv
+import os
+import sys
+sys.stdout.reconfigure(encoding='utf-8')
+
+load_dotenv()
+
+
 
 
 def load_and_parse_walmart_docs(pdf_path: str) -> List[Document]:
@@ -25,6 +34,9 @@ def load_and_parse_walmart_docs(pdf_path: str) -> List[Document]:
 
     return docs
 
+
+
+
 def chunking_docs(docs: List[Document]) -> List[Document]:
     """
     Phase 2: Split documents into smaller chunks for better retrieval performance.
@@ -43,10 +55,53 @@ def chunking_docs(docs: List[Document]) -> List[Document]:
     
     return chunked_docs    
 
+
+
+
+def create_qdrant_vector_store(chunked_docs: List[Document], collection_name: str = "walmart_annual_report_2025")->QdrantVectorStore:
+
+    """
+    Phase 3: Create Qdrant vector store from chunked documents.
+    """
+    embedding_model = HuggingFaceEmbeddings(
+        model_name="all-MiniLM-L6-v2",
+        model_kwargs={"trust_remote_code": True},
+    )
+
+    qdrant_url = os.getenv("QDRANT_URL")
+    qdrant_api_key = os.getenv("QDRANT_API_KEY")
+
+    if not qdrant_url or not qdrant_api_key:
+        raise ValueError("QDRANT_URL or QDRANT_API_KEY not found in environment variables") 
+
+    client = QdrantClient(
+        url=qdrant_url,
+        api_key=qdrant_api_key,
+        check_compatibility=False 
+    )       
+
+    vector_store = QdrantVectorStore.from_documents(
+        documents=chunked_docs,
+        embedding=embedding_model,
+        api_key=qdrant_api_key,
+        url=qdrant_url,
+        collection_name=collection_name,
+        force_recreate=True,
+    )
+    
+    print(f"✅ [Phase 3 Complete] Created Qdrant vector store with {len(chunked_docs)} chunks.")
+    
+    return vector_store 
+
+
+
+
+
 def main():
-    pdf_path = "data/Walmart Annual Report 2025.pdf"
+    pdf_path = "./data/Walmart Annual Report 2025.pdf"
     docs = load_and_parse_walmart_docs(pdf_path)
     chunked_docs = chunking_docs(docs)
+    vector_store = create_qdrant_vector_store(chunked_docs)
 
 if __name__ == "__main__":
     main()
