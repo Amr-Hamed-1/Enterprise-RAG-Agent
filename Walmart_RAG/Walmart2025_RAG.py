@@ -87,6 +87,7 @@ def create_qdrant_vector_store(chunked_docs: List[Document], collection_name: st
         url=qdrant_url,
         collection_name=collection_name,
         force_recreate=True,
+        timeout=120,
     )
     
     print(f"✅ [Phase 3 Complete] Created Qdrant vector store with {len(chunked_docs)} chunks.")
