@@ -102,7 +102,7 @@ def rewrite_query(query:str)->str:
 
 
 # Phase 4B: Hybrid Search (Keyword + Semantic) + FlashRank Reranker
-def hybrid_search(query: str, vector_store: QdrantVectorStore, docs: List[Document], k: int = 10, top_n: int = 5) -> List[Document]:
+def hybrid_search(query: str, vector_store: QdrantVectorStore, docs: List[Document] = None, k: int = 10, top_n: int = 5) -> List[Document]:
     """
     Performs hybrid search using both keyword (BM25) and semantic search,
     followed by FlashRank reranking to produce re-scored top results.
@@ -110,7 +110,7 @@ def hybrid_search(query: str, vector_store: QdrantVectorStore, docs: List[Docume
     Args:
         query: The search query
         vector_store: Qdrant vector store instance
-        docs: List of parsed Document chunks for BM25
+        docs: Optional list of parsed Document chunks for BM25. If None, loaded automatically.
         k: Number of candidate results to retrieve per retriever before reranking
         top_n: Number of final reranked top results to return
     
@@ -119,6 +119,15 @@ def hybrid_search(query: str, vector_store: QdrantVectorStore, docs: List[Docume
     """
     print(f"🔍 [Phase 4B] Performing Hybrid Search & FlashRank Reranking...")
     
+    if docs is None:
+        pdf_path = os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), "data", "Walmart Annual Report 2025.pdf")
+        if os.path.exists(pdf_path):
+            from Walmart2025_RAG import load_and_parse_walmart_docs, chunking_docs
+            raw_docs = load_and_parse_walmart_docs(pdf_path)
+            docs = chunking_docs(raw_docs)
+        else:
+            raise ValueError(f"Document list 'docs' was not provided and PDF file was not found at '{pdf_path}'.")
+
     qdrant_retriver = vector_store.as_retriever(search_kwargs={"k": k})
     BM25_retriver = BM25Retriever.from_documents(documents=docs, k=k)
 

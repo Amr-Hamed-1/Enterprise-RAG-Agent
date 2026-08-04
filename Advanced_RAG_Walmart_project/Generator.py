@@ -61,4 +61,4 @@ Analytical Answer:"""
     return rag_chain.invoke({
         "context": formatted_context,
         "query": query
-    })
+    }) 
