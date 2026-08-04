@@ -53,30 +53,26 @@ def get_qdrant_vector_store(collection_name:str = "walmart_annual_report_2025") 
 # ==========================================
 # 2. Phase 4A: Query Transformation (Rewriting)
 # ==========================================
-def rewrite_query(query:str)->str:
+def rewrite_query(query: str) -> str:
     groq_api_key = os.getenv("GROQ_API_KEY")
     if not groq_api_key:
         raise ValueError("GROQ_API_KEY not found in environment variables") 
     
-    llm = ChatGroq(model_name="llama-3.3-70b-versatile",groq_api_key=groq_api_key)
+    llm = ChatGroq(model_name="llama-3.3-70b-versatile", groq_api_key=groq_api_key)
+    
     prompt_template = """
     <system>
-    You are a query transformation engine that rewrites user queries for better semantic search retrieval.
+    You are an expert financial search query optimizer for RAG systems.
     
     Your goal:
-    - Make queries more detailed
-    - Add relevant keywords
-    - Clarify intent
-    - Preserve the original meaning
-    - Keep it concise (1-3 sentences)
+    - Rewrite the query to improve BM25 keyword and vector search accuracy.
+    - Add relevant financial terminology or synonyms (e.g., FY2025, annual report, net sales) if helpful.
+    - Keep the output extremely concise (strictly under 20 words / 1 short sentence).
     
-    Do NOT:
-    - Answer the question
-    - Add external information
-    - Change the meaning
-    - Make it too long
-    
-    Transform the user's query into a semantically enriched version suitable for vector search.
+    CRITICAL RULES:
+    - DO NOT add sub-questions, comparisons, or extra scope not present in the original query.
+    - DO NOT answer the question or output markdown explanation.
+    - Preserve the original intent 100%.
     </system>
     
     <user_query>
@@ -84,14 +80,15 @@ def rewrite_query(query:str)->str:
     </user_query>
     
     <instructions>
-    Rewrite this query to improve retrieval. Add context, detail, and relevant keywords. Keep it under 3 sentences.
-    
-    Rewritten Query:
+    Output ONLY the concise, optimized search query text:
+    </instructions>
     """
+    
     prompt = ChatPromptTemplate.from_template(prompt_template)
     chain = prompt | llm | StrOutputParser()
-    rewritten_query = chain.invoke({"query":query}).strip()
+    rewritten_query = chain.invoke({"query": query}).strip().replace('"', '')
 
+   
     print(f"🔍 [Phase 4A Complete] Query Rewritten:")
     print(f"   Original: {query}")
     print(f"   Rewritten: {rewritten_query}\n")
