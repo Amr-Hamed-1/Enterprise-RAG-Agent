@@ -11,6 +11,9 @@ from langchain_core.output_parsers import StrOutputParser
 from langchain_core.documents import Document 
 from langchain_community.retrievers import BM25Retriever
 from langchain_classic.retrievers import EnsembleRetriever
+from langchain_community.document_compressors import FlashrankRerank
+
+FlashrankRerank.model_rebuild()
 
 sys.path.append(os.path.dirname(os.path.abspath(__file__)))
 sys.stdout.reconfigure(encoding='utf-8')
@@ -98,34 +101,41 @@ def rewrite_query(query:str)->str:
 
 
 
-# Phase 4B: Hybrid Search (Keyword + Semantic)
-def hybrid_search(query:str, vector_store:QdrantVectorStore, docs: List[Document], k:int=10) -> List[Document]:
+# Phase 4B: Hybrid Search (Keyword + Semantic) + FlashRank Reranker
+def hybrid_search(query: str, vector_store: QdrantVectorStore, docs: List[Document], k: int = 10, top_n: int = 5) -> List[Document]:
     """
-    Performs hybrid search using both keyword (BM25) and semantic search.
+    Performs hybrid search using both keyword (BM25) and semantic search,
+    followed by FlashRank reranking to produce re-scored top results.
     
     Args:
         query: The search query
         vector_store: Qdrant vector store instance
-        chunked_docs: List of parsed Document chunks for BM25 (will load if None)
-        k: Number of top results to return
+        docs: List of parsed Document chunks for BM25
+        k: Number of candidate results to retrieve per retriever before reranking
+        top_n: Number of final reranked top results to return
     
     Returns:
-        List of retrieved documents with combined scores
+        List of reranked Document objects
     """
-    print(f"🔍 [Phase 4B] Performing Hybrid Search...")
+    print(f"🔍 [Phase 4B] Performing Hybrid Search & FlashRank Reranking...")
     
-    qdrant_retriver = vector_store.as_retriever(search_kwargs={"k":k})
-
-    BM25_retriver = BM25Retriever.from_documents(documents=docs,k=k)
+    qdrant_retriver = vector_store.as_retriever(search_kwargs={"k": k})
+    BM25_retriver = BM25Retriever.from_documents(documents=docs, k=k)
 
     ensemble_retriver = EnsembleRetriever(
         retrievers=[qdrant_retriver, BM25_retriver],
         weights=[0.5, 0.5],
     )
 
-    print(f"✅ [Phase 4B Complete] Hybrid Search Performed")
+    retrieved_docs = ensemble_retriver.invoke(query)
 
-    return ensemble_retriver.invoke(query)
+    # Initialize FlashRank Reranker
+    compressor = FlashrankRerank(top_n=top_n)
+    reranked_docs = compressor.compress_documents(documents=retrieved_docs, query=query)
+
+    print(f"✅ [Phase 4B Complete] Hybrid Search & Reranking Performed (Retrieved {len(retrieved_docs)} docs -> Reranked top {len(reranked_docs)} docs).")
+
+    return reranked_docs
 
 
 
