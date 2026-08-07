@@ -30,7 +30,7 @@ def run_enterprise_rag(user_query: str):
         top_chunks = hybrid_search(
             query=optimized_query,
             vector_store=vector_store,
-            docs=docs,
+            docs=None,
             k=10,
             top_n=3
         )
