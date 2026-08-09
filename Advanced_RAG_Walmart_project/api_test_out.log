@@ -1,0 +1,10 @@
+[RAGService] Connecting to Qdrant vector store...
+[Retriever] Connected to Qdrant vector store 'walmart_annual_report_2025'.
+[RAGService] Loading and chunking the PDF corpus...
+[Phase 1] Parsed 97 pages from Walmart Annual Report 2025.pdf.
+[Phase 2] Split 97 pages into 650 chunks.
+[RAGService] Building BM25 keyword index...
+[RAGService] Ready. 650 chunks indexed for hybrid search.
+INFO:     127.0.0.1:57004 - "GET /health HTTP/1.1" 200 OK
+[RAGService] Hybrid search: retrieved 20 -> reranked top 5
+INFO:     127.0.0.1:57004 - "POST /ask HTTP/1.1" 200 OK
