@@ -1,0 +1,50 @@
+[
+  {
+    "question": "What were Walmart's total revenues in fiscal year 2025?",
+    "expected_number": "680,985",
+    "expected_page": 54,
+    "category": "direct"
+  },
+  {
+    "question": "What were Walmart's net sales in fiscal year 2025?",
+    "expected_number": "674,538",
+    "expected_page": 54,
+    "category": "direct"
+  },
+  {
+    "question": "What was Walmart's operating income for fiscal year 2025?",
+    "expected_number": "29,348",
+    "expected_page": 54,
+    "category": "direct"
+  },
+  {
+    "question": "What was Walmart International's net sales in fiscal year 2025?",
+    "expected_number": "121,885",
+    "expected_page": 42,
+    "category": "segment"
+  },
+  {
+    "question": "How much did Walmart International e-commerce contribute to net sales in fiscal year 2025?",
+    "expected_number": "29.5",
+    "expected_page": 81,
+    "category": "segment"
+  },
+  {
+    "question": "How many eCommerce units did Walmart deliver same or next day in fiscal year 2025?",
+    "expected_number": "8.3",
+    "expected_page": 1,
+    "category": "narrative"
+  },
+  {
+    "question": "What was Walmart's membership and other income for fiscal year 2025?",
+    "expected_number": "6,447",
+    "expected_page": 54,
+    "category": "direct"
+  },
+  {
+    "question": "How much were Sam's Club U.S. grocery net sales in fiscal year 2025?",
+    "expected_number": "59,976",
+    "expected_page": 81,
+    "category": "segment"
+  }
+]

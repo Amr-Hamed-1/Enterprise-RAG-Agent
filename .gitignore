@@ -1,4 +1,29 @@
+# Environment
 .env
+*.env
+.env.*
+!.env.example
+
+# Python
 __pycache__/
 *.pyc
+*.pyo
 .ipynb_checkpoints/
+
+# Build / tooling
+dist/
+build/
+*.egg-info/
+
+# Logs & runtime artifacts
+*.log
+diagnosis_results.json
+
+# DeepEval local cache
+.deepeval/
+
+# OS / editor
+.DS_Store
+Thumbs.db
+.vscode/
+.idea/
