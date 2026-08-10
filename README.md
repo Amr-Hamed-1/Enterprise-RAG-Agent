@@ -150,8 +150,14 @@ Enterprise-RAG-Agent/
 │   ├── ui/streamlit_app.py             #    chat interface
 │   ├── scripts/                        #    diagnose.py · tune_retrieval.py
 │   ├── tests/test_questions.json       #    golden ground-truth set
+│   ├── Dockerfile.api                  #    container: FastAPI + RAG core
+│   ├── Dockerfile.ui                   #    container: Streamlit frontend
+│   ├── requirements_api.txt            #    runtime deps for the API
+│   ├── requirements_ui.txt             #    runtime deps for the UI
 │   └── main.py                         #    CLI entry point
 │
+├── docker-compose.yml                  # 🐳 orchestrates api + ui
+├── .env.example                        # 📋 keys template (git-ignored keys live in .env)
 ├── data/Walmart Annual Report 2025.pdf # 📄 Source corpus (11.3 MB)
 ├── requirements.txt
 ├── .env                                # 🔒 keys (git-ignored)
@@ -207,6 +213,27 @@ streamlit run ui/streamlit_app.py
 # ⌨️ CLI
 python main.py "What were Walmart's total revenues in fiscal year 2025?"
 ```
+
+### 🐳 Run with Docker (recommended)
+
+Both services are containerized and orchestrated with `docker-compose`. From the **repo root**:
+
+```bash
+docker compose up -d --build   # first build downloads deps (takes a few minutes)
+docker compose ps              # check status
+```
+
+- 🔌 API → http://localhost:8000/docs
+- 💬 UI → http://localhost:8501
+
+Compose reads your keys from the repo-root `.env` (same file used for local dev), and the UI reaches the API over the internal Docker network (`API_BASE=http://api:8000`) — no manual config.
+
+```bash
+docker compose down            # stop everything
+docker compose up -d --build   # rebuild after changing the code
+```
+
+Two lean images: **`api`** (FastAPI + RAG core) and **`ui`** (Streamlit + `requests` only).
 
 ### 5 · Test & evaluate
 
@@ -277,7 +304,7 @@ curl -X POST http://127.0.0.1:8000/ask \
 - [x] FastAPI microservice + Streamlit UI
 - [x] Rate limiting & request validation
 - [x] DeepEval evaluation suite
-- [ ] Dockerize API + UI (`docker-compose`)
+- [x] Dockerized API + UI (`docker-compose`)
 - [ ] Naive-vs-Advanced DeepEval score comparison (same golden set)
 - [ ] Deploy to Hugging Face Spaces
 - [ ] Layout-aware parsing for infographic-heavy pages
