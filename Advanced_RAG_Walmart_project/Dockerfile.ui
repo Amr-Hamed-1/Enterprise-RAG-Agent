@@ -1,0 +1,19 @@
+# ---- UI service (Streamlit chat) ----
+# Thin image: only the frontend + HTTP client, nothing else.
+FROM python:3.10-slim
+
+ENV PYTHONUNBUFFERED=1 \
+    PIP_NO_CACHE_DIR=1 \
+    PIP_DISABLE_PIP_VERSION_CHECK=1
+
+WORKDIR /workspace
+
+COPY Advanced_RAG_Walmart_project/requirements_ui.txt requirements_ui.txt
+RUN pip install --no-cache-dir -r requirements_ui.txt
+
+COPY Advanced_RAG_Walmart_project/ui ./ui
+
+EXPOSE 8501
+
+CMD ["streamlit", "run", "ui/streamlit_app.py", \
+     "--server.address=0.0.0.0", "--server.port=8501", "--server.headless=true"]

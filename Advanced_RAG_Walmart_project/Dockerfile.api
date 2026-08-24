@@ -1,0 +1,25 @@
+# ---- API service (FastAPI + RAG core) ----
+# Build from repo root so the container mirrors the real layout:
+#   /workspace/Advanced_RAG_Walmart_project  (code)
+#   /workspace/data                          (PDF corpus)
+FROM python:3.10-slim
+
+ENV PYTHONUNBUFFERED=1 \
+    PIP_NO_CACHE_DIR=1 \
+    PIP_DISABLE_PIP_VERSION_CHECK=1
+
+WORKDIR /workspace
+
+# 1. Dependencies first (cached layer — rebuilds only when requirements change)
+COPY Advanced_RAG_Walmart_project/requirements_api.txt requirements.txt
+RUN pip install --no-cache-dir -r requirements.txt
+
+# 2. Application code + corpus
+COPY Advanced_RAG_Walmart_project ./Advanced_RAG_Walmart_project
+COPY data ./data
+
+WORKDIR /workspace/Advanced_RAG_Walmart_project
+
+EXPOSE 8000
+
+CMD ["uvicorn", "app.api:app", "--host", "0.0.0.0", "--port", "8000"]

@@ -1,9 +1,13 @@
+import os
+
 import requests
 import streamlit as st
 
 st.set_page_config(page_title="Enterprise RAG Agent", page_icon="🏢", layout="wide")
 
-API_BASE = st.sidebar.text_input("API URL", value="http://127.0.0.1:8000", key="api_url")
+API_BASE = st.sidebar.text_input(
+    "API URL", value=os.getenv("API_BASE", "http://127.0.0.1:8000"), key="api_url"
+)
 k = st.sidebar.slider("k (candidates per retriever)", 5, 30, 10)
 top_n = st.sidebar.slider("top_n (final chunks to LLM)", 1, 10, 5)
 st.sidebar.divider()

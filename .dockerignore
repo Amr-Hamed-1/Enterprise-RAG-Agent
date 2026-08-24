@@ -1,0 +1,30 @@
+# Secrets — never baked into images
+**/.env
+.env
+.env.*
+
+# VCS / tooling
+.git
+.gitignore
+.vscode
+.idea
+
+# Python artifacts
+__pycache__
+*.pyc
+*.pyo
+.ipynb_checkpoints
+
+# Local runtime artifacts
+*.log
+diagnosis_results.json
+.deepeval
+
+# Notebooks (learning journey — not needed in the deployed image)
+**/*.ipynb
+
+# Naive baseline (not part of the deployed stack)
+simple_Naive_RAG_project
+
+# README
+README.md
