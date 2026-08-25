@@ -1,6 +1,7 @@
 """Phase 5: Grounded answer generation with Groq."""
 
 import os
+import re
 from typing import List
 
 from langchain_core.documents import Document
@@ -49,10 +50,12 @@ Analytical Answer:"""
     )
 
     llm = ChatGroq(
-        model_name="llama-3.1-8b-instant",
+        model_name="qwen/qwen3.6-27b",
         temperature=0.1,
         groq_api_key=os.getenv("GROQ_API_KEY"),
     )
 
     rag_chain = prompt | llm | StrOutputParser()
-    return rag_chain.invoke({"context": formatted_context, "query": query})
+    raw = rag_chain.invoke({"context": formatted_context, "query": query})
+    raw = re.sub(r"<think>.*?</think>", "", raw, flags=re.DOTALL).strip()
+    return raw
