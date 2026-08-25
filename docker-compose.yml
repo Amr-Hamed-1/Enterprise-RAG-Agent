@@ -8,6 +8,8 @@ services:
       - .env
     ports:
       - "8000:8000"
+    volumes:
+      - ./Advanced_RAG_Walmart_project/app:/workspace/Advanced_RAG_Walmart_project/app
     healthcheck:
       test: ["CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://localhost:8000/health', timeout=5)"]
       interval: 30s

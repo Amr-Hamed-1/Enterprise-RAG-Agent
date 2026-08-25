@@ -1,6 +1,7 @@
 """FastAPI application exposing the RAG pipeline over HTTP."""
 
 import time
+import traceback
 from collections import defaultdict, deque
 from contextlib import asynccontextmanager
 
@@ -67,6 +68,7 @@ async def ask(request: Request, payload: AskRequest):
     except HTTPException:
         raise
     except Exception as exc:
+        traceback.print_exc()
         raise HTTPException(status_code=500, detail=str(exc)) from exc
 
     return AskResponse(

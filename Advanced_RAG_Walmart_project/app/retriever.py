@@ -1,6 +1,7 @@
 """Query transformation (rewrite) + Qdrant connection."""
 
 import os
+import re
 
 from langchain_classic.retrievers import EnsembleRetriever
 from langchain_community.document_compressors import FlashrankRerank
@@ -44,7 +45,7 @@ def rewrite_query(query: str) -> str:
     if not groq_api_key:
         raise ValueError("GROQ_API_KEY not found in environment variables.")
 
-    llm = ChatGroq(model_name="llama-3.3-70b-versatile", groq_api_key=groq_api_key, temperature=0.0)
+    llm = ChatGroq(model_name="qwen/qwen3.6-27b", groq_api_key=groq_api_key, temperature=0.0)
 
     prompt_template = """
     <system>
@@ -72,5 +73,6 @@ def rewrite_query(query: str) -> str:
 
     prompt = ChatPromptTemplate.from_template(prompt_template)
     chain = prompt | llm | StrOutputParser()
-    rewritten_query = chain.invoke({"query": query}).strip().replace('"', '')
-    return rewritten_query
+    raw = chain.invoke({"query": query}).strip()
+    raw = re.sub(r"<think>.*?</think>", "", raw, flags=re.DOTALL).strip()
+    return raw.replace('"', '')
